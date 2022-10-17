@@ -43,6 +43,10 @@ var corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// -------------------
+// config above
+// routes below
+
 // Actual server behaviour
 app.get("/", (req, res) => {
   console.log("ExpressJS API homepage received a request.");
@@ -52,6 +56,10 @@ app.get("/", (req, res) => {
     message: `Hello ${target} world!`,
   });
 });
+
+const importedBlogRouting = require("./Blogs/BlogsRoutes");
+app.use("/blogs", importedBlogRouting);
+// localhost:55000/blogs/12341
 
 // Notice that we're not calling app.listen() anywhere in here.
 // This file contains just the setup/config of the server,
