@@ -2,13 +2,22 @@
 const firebaseAdmin = require("firebase-admin");
 
 // Set up the Firebase Client SDK
-const { firebaseClientConfig } = require("../../keys/FirebaseClientKey");
+const { firebaseConfig } = require("../../keys/firebaseClientKey");
 const firebaseClient = require("firebase/app");
 // Add the Firebase products that you want to use
 const { getAuth, signInWithEmailAndPassword } = require("firebase/auth");
 // Initialize the Firebase Client SDK
-firebaseClient.initializeApp(firebaseClientConfig);
+firebaseClient.initializeApp(firebaseConfig);
 
+// ----------- Config above
+// Functions below
+/*
+ userDetails = {
+    username: "olahabsa",
+    email:"whaogihjadsg",
+    password:'caosjncalkcna'
+ }
+*/
 async function signUpUser(userDetails) {
   // Use the Firebase Admin SDK to create the user
   return firebaseAdmin
@@ -46,20 +55,31 @@ async function signUpUser(userDetails) {
 }
 
 async function signInUser(userDetails) {
+  // Firebase client SDK splits out getAuth to its own thing,
+  // and it makes an instance of an Auth management object
   const firebaseClientAuth = getAuth();
 
+  // signInWithEmailAndPassword is a Firebase Auth function,
+  // so signing in with other methods need different Firebase Auth functions
+  // Either way, needs a Firebase Auth client instance AND the sign-in details
   let signInResult = signInWithEmailAndPassword(
     firebaseClientAuth,
     userDetails.email,
     userDetails.password
   )
     .then(async (userCredential) => {
+      // Note the `async (userCredential) => {}` above
+      // This function is async, so we can use await instead of nesting promises
       let userIdToken = await firebaseClientAuth.currentUser.getIdTokenResult(
         false
       );
 
+      // Sanity-checking to make sure we got the right data from Firebase
       console.log(`userIdToken obj is\n ${JSON.stringify(userIdToken)}`);
 
+      // Here, you could do whatever you want based on the user data that Firebase returned
+      // This return below simply returns a custom object.
+      // Because some data is in the userIdToken and some data is in the userCredential.
       return {
         idToken: userIdToken.token,
         refreshToken: userCredential.user.refreshToken,
@@ -71,10 +91,13 @@ async function signInUser(userDetails) {
       };
     })
     .catch((error) => {
+      // If things break, Firebase provides a real descriptive error.
+      // Log the error, then return the error.
       console.log("Internal signin function error is: \n" + error);
       return { error: error };
     });
 
+  // This will be either an error object, or a user data object.
   return signInResult;
 }
 
@@ -82,12 +105,17 @@ async function validateUserSession(sessionDetails) {
   let userRefreshToken = sessionDetails.refreshToken;
   let userIdToken = sessionDetails.idToken;
 
+  // Firebase Admin SDK handles JWT verification & refreshing of tokens.
+  // The "userIdToken, true" bit is basically
+  // "here is the user, check if they've been banned before checking if they're still logged in"
   return firebaseAdmin
     .auth()
     .verifyIdToken(userIdToken, true)
     .then(async (decodedToken) => {
+      // Sanity check :)
       console.log(`Decoded session token is ${JSON.stringify(decodedToken)}`);
 
+      // Return whether or not the user has a valid session & token
       return {
         isValid: true,
         uid: decodedToken.uid,
@@ -95,6 +123,8 @@ async function validateUserSession(sessionDetails) {
       };
     })
     .catch((error) => {
+      // You can specifically check for different errors based on this list:
+      // https://firebase.google.com/docs/auth/admin/errors
       if (error.code == "auth/id-token-revoked") {
         // Token has been revoked. Inform the user to reauthenticate or signOut() the user.
         console.log(
