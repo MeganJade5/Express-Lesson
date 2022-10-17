@@ -5,24 +5,34 @@ const routes = express.Router();
 
 // This is the "root" route for the Router instance.
 // Its actual name in the URL will depend on how it's configured in src/index.js
+// localhost:55000/Bananas/
 routes.get("/", (request, response) => {
   response.json({
     message: `Received a request on ${request.originalUrl}`,
   });
+
+  /*
+    response.json(`Received a request on ${request.originalUrl}`);
+    */
 });
 
 // Set up route params with the colon before the name.
-routes.get("/:blogID", (request, response) => {
+routes.get("/:blogID/notAParam/:AnotherParam", (request, response) => {
+  // Nested params just get pushed up to request.params! :D
+  console.log(request.params);
   response.json(
-    `Received a GET request for a blog post with ID of ${request.params.blogID}`
+    `Received a GET request for a blog post with ID of ${request.params.blogID} and nested param of ${request.params.AnotherParam}`
   );
 });
 
 // Use Postman or another HTTP tool to visit a POST route.
 routes.post("/:blogID", (request, response) => {
-  response.json(
-    `Received a POST request for a blog post with ID of ${request.params.blogID}`
-  );
+  console.log(`Content author was ${request.body.postAuthorID}`);
+
+  response.json({
+    message: `Received a POST request for a blog post with ID of ${request.params.blogID}`,
+    bodyContent: request.body,
+  });
 });
 
 module.exports = routes;

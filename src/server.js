@@ -43,23 +43,43 @@ var corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// -------------------
-// config above
-// routes below
+require("dotenv").config();
+
+// console.log("Firebase project ID is: " + process.env.FIREBASE_ADMIN_PROJECT_ID)
+
+const firebaseAdmin = require("firebase-admin");
+firebaseAdmin.initializeApp({
+  credential: firebaseAdmin.credential.cert({
+    projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+    privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+  }),
+});
+
+// ------------------------------------------
+// Config above
+// Routes below
 
 // Actual server behaviour
 app.get("/", (req, res) => {
   console.log("ExpressJS API homepage received a request.");
 
   const target = process.env.NODE_ENV || "not yet set";
+
   res.json({
-    message: `Hello ${target} world!`,
+    message: `Hello ${target} world, woohoo!!`,
   });
 });
 
+// Any router must be "mounted" on to the app
+// So, we must import the routers and
+// tell the app to use those routers on a specific label
 const importedBlogRouting = require("./Blogs/BlogsRoutes");
 app.use("/blogs", importedBlogRouting);
-// localhost:55000/blogs/12341
+//  localhost:55000/blogs/12314
+
+const importedUserRouting = require("./Users/UserRoutes");
+app.use("/users", importedUserRouting);
 
 // Notice that we're not calling app.listen() anywhere in here.
 // This file contains just the setup/config of the server,

@@ -9,12 +9,12 @@ const server = app.listen(PORT, HOST, () => {
     PORT = server.address().port;
   }
 
-  console.log(`    
-    ExpressJS Demo server is now running!
-    Server address mapping is:
-    
-    HOST: ${HOST}
-    PORT: ${PORT}
-    Congrats!
-    `);
+  console.log(`	
+	ExpressJS Demo server is now running!
+	Server address mapping is:
+	
+	HOST: ${HOST}
+	PORT: ${PORT}
+	Congrats!
+	`);
 });
