@@ -93,6 +93,27 @@ async function signInUser(userDetails) {
     .catch((error) => {
       // If things break, Firebase provides a real descriptive error.
       // Log the error, then return the error.
+
+      // switch (error.code) {
+      //     case "auth/invalid-email":
+
+      //         break;
+      //     case "auth/invalid-pasqsword":
+
+      //         break;
+
+      //     default:
+      //         break;
+      // }
+
+      // if (error.code == 'auth/invalid-email') {
+      //     // Token has been revoked. Inform the user to reauthenticate or signOut() the user.
+      //     console.log("Your email was invalid, try again! Full error is: \n" + error);
+      // } else {
+      //     // Token is invalid.
+      //     console.log("Session token is invalid. Full error is: \n" + error);
+      // }
+
       console.log("Internal signin function error is: \n" + error);
       return { error: error };
     });

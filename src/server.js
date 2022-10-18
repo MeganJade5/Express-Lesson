@@ -56,6 +56,26 @@ firebaseAdmin.initializeApp({
   }),
 });
 
+const { databaseConnector } = require("./database");
+
+if (process.env.NODE_ENV != "test") {
+  const DATABASE_URI =
+    process.env.DATABASE_URI ||
+    "mongodb://localhost:27017/ExpressLessonOctLocal";
+  databaseConnector(DATABASE_URI)
+    .then(() => {
+      // if database connection succeeded, log a nice success message
+      console.log("Database connected, woohoo!");
+    })
+    .catch((error) => {
+      // if database connection failed, log the error
+      console.log(`
+        Some error occured, it was: 
+        ${error}
+        `);
+    });
+}
+
 // ------------------------------------------
 // Config above
 // Routes below
